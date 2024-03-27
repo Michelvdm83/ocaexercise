@@ -1,0 +1,13 @@
+package com.mvdmstudy.ocaexercise;
+
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
+
+@SpringBootTest
+class OcaExerciseApplicationTests {
+
+	@Test
+	void contextLoads() {
+	}
+
+}
