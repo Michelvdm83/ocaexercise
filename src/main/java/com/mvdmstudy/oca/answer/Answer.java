@@ -6,7 +6,9 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
-import lombok.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @NoArgsConstructor
@@ -24,9 +26,14 @@ public class Answer {
     @JsonManagedReference
     private OcaExercise ocaExercise;
 
-    public Answer(String text, boolean isCorrect, OcaExercise ocaExercise){
+    public Answer(String text, boolean isCorrect, OcaExercise ocaExercise) {
         this.text = text;
         this.isCorrect = isCorrect;
         this.ocaExercise = ocaExercise;
+    }
+
+    public Answer(AnswerDto answerDto) {
+        this.text = answerDto.text();
+        this.isCorrect = answerDto.isCorrect();
     }
 }

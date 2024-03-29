@@ -1,9 +1,8 @@
 package com.mvdmstudy.oca;
 
-import com.mvdmstudy.oca.answer.Answer;
-import com.mvdmstudy.oca.answer.AnswerRepository;
-import com.mvdmstudy.oca.exercise.OcaExercise;
-import com.mvdmstudy.oca.exercise.OcaExerciseRepository;
+import com.mvdmstudy.oca.answer.AnswerDto;
+import com.mvdmstudy.oca.exercise.OcaExerciseDto;
+import com.mvdmstudy.oca.exercise.OcaExerciseService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
@@ -13,19 +12,17 @@ import java.util.List;
 @Component
 @RequiredArgsConstructor
 public class Seeder implements CommandLineRunner {
-    private final OcaExerciseRepository ocaExerciseRepository;
-    private final AnswerRepository answerRepository;
+    private final OcaExerciseService ocaExerciseService;
 
     @Override
     public void run(String... args) {
-        if (ocaExerciseRepository.count() == 0) {
-            var question1 = new OcaExercise("Which of the following types is not a primitive?");
-            ocaExerciseRepository.save(question1);
+        if (ocaExerciseService.findAll().isEmpty()) {
+            String question = "Which of the following types is not a primitive?";
+            var answer1 = new AnswerDto("String", true);
+            var answer2 = new AnswerDto("int", false);
+            var answer3 = new AnswerDto("double", false);
 
-            var answer1 = new Answer("String", true, question1);
-            var answer2 = new Answer("int", false, question1);
-            var answer3 = new Answer("double", false, question1);
-            answerRepository.saveAll(List.of(answer1, answer2, answer3));
+            ocaExerciseService.save(new OcaExerciseDto(question, List.of(answer1, answer2, answer3)));
         }
     }
 }
