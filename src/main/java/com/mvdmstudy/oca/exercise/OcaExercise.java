@@ -8,6 +8,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -15,6 +16,7 @@ import java.util.Set;
 @Entity
 @NoArgsConstructor
 @Getter
+@Setter
 public class OcaExercise {
 
     public OcaExercise(String question) {
@@ -27,8 +29,7 @@ public class OcaExercise {
 
     private String question;
 
-
     @OneToMany(mappedBy = "ocaExercise")
     @JsonBackReference
-    private final Set<Answer> possibleAnswers = new HashSet<>();
+    private Set<Answer> possibleAnswers = new HashSet<>();
 }

@@ -6,6 +6,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -13,7 +15,7 @@ public class OcaExerciseService {
     private final OcaExerciseRepository ocaExerciseRepository;
     private final AnswerRepository answerRepository;
 
-    public OcaExerciseDto save(OcaExerciseDto ocaExerciseDto) {
+    public OcaExercise save(OcaExerciseDto ocaExerciseDto) {
         var answers = ocaExerciseDto.answers().stream().map(Answer::new).toList();
         if (answers.isEmpty() || answers.size() < 2)
             throw new IllegalArgumentException("not enough answers");
@@ -24,11 +26,16 @@ public class OcaExerciseService {
         OcaExercise exercise = ocaExerciseRepository.save(new OcaExercise(ocaExerciseDto.question()));
         answers.forEach(a -> a.setOcaExercise(exercise));
         answerRepository.saveAll(answers);
-
-        return OcaExerciseDto.from(ocaExerciseRepository.findById(exercise.getId()).get());
+        exercise.setPossibleAnswers(Set.copyOf(answers));
+        
+        return exercise;
     }
 
     public List<OcaExercise> findAll() {
         return ocaExerciseRepository.findAll();
+    }
+
+    public Optional<OcaExerciseDto> findById(long id) {
+        return ocaExerciseRepository.findById(id).map(OcaExerciseDto::from);
     }
 }
