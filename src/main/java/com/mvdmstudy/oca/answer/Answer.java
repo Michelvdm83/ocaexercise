@@ -1,6 +1,6 @@
 package com.mvdmstudy.oca.answer;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.mvdmstudy.oca.exercise.OcaExercise;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -18,12 +18,14 @@ public class Answer {
     @GeneratedValue
     private Long id;
 
+    @Setter
     private String text;
+    @Setter
     private boolean isCorrect;
 
     @ManyToOne
+    @JsonBackReference
     @Setter
-    @JsonManagedReference
     private OcaExercise ocaExercise;
 
     public Answer(String text, boolean isCorrect, OcaExercise ocaExercise) {

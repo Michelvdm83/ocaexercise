@@ -1,11 +1,8 @@
 package com.mvdmstudy.oca.exercise;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.mvdmstudy.oca.answer.Answer;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -29,7 +26,7 @@ public class OcaExercise {
 
     private String question;
 
-    @OneToMany(mappedBy = "ocaExercise")
-    @JsonBackReference
+    @OneToMany(mappedBy = "ocaExercise", cascade = CascadeType.ALL)
+    @JsonManagedReference
     private Set<Answer> possibleAnswers = new HashSet<>();
 }

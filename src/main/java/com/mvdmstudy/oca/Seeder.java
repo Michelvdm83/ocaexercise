@@ -22,7 +22,7 @@ public class Seeder implements CommandLineRunner {
             var answer2 = new AnswerDto("int", false);
             var answer3 = new AnswerDto("double", false);
 
-            ocaExerciseService.save(new OcaExerciseDto(question, List.of(answer1, answer2, answer3)));
+            ocaExerciseService.saveNew(new OcaExerciseDto(question, List.of(answer1, answer2, answer3)));
         }
     }
 }
