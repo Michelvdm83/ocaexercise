@@ -9,4 +9,9 @@ public record OcaExerciseDto(String question, List<AnswerDto> answers) {
         List<AnswerDto> answers = ocaExercise.getPossibleAnswers().stream().map(AnswerDto::from).toList();
         return new OcaExerciseDto(ocaExercise.getQuestion(), answers);
     }
+
+    public static OcaExerciseDto from(OcaExercisePatchDto ocaExercisePatchDto) {
+        List<AnswerDto> answers = ocaExercisePatchDto.answers().stream().map(AnswerDto::from).toList();
+        return new OcaExerciseDto(ocaExercisePatchDto.question(), answers);
+    }
 }

@@ -28,6 +28,7 @@ public class OcaExerciseService {
     public OcaExercise saveNew(OcaExerciseDto ocaExerciseDto) {
         checkForValidExercise(ocaExerciseDto);
 
+
         OcaExercise exercise = ocaExerciseRepository.save(new OcaExercise(ocaExerciseDto.question()));
 
         var answers = ocaExerciseDto.answers().stream().map(Answer::new).toList();
@@ -38,8 +39,38 @@ public class OcaExerciseService {
         return exercise;
     }
 
-    public OcaExercise update(OcaExercise ocaExercise) {
-        return ocaExerciseRepository.save(ocaExercise);
+    public OcaExercise update(OcaExercise updatingExercise, OcaExercisePatchDto updatedExerciseFields) {
+        var allAnswers = updatingExercise.getPossibleAnswers();
+        var updateAnswers = updatedExerciseFields.answers();
+
+        var newQuestion = updatedExerciseFields.question();
+        if (newQuestion != null) updatingExercise.setQuestion(newQuestion);
+
+        updateAnswers.forEach(a -> {
+            if (a.id() == null) {
+                if (a.isCorrect() == null || a.text() == null)
+                    throw new ExerciseSyntaxException("New answers need text and isCorrect both present");
+                Answer newAnswer = new Answer();
+                newAnswer.setText(a.text());
+                newAnswer.setCorrect(a.isCorrect());
+                newAnswer.setOcaExercise(updatingExercise);
+                allAnswers.add(newAnswer);
+            } else {
+                var possibleOldAnswer = allAnswers.stream().filter(answer -> answer.getId().equals(a.id())).findFirst();
+                if (possibleOldAnswer.isPresent()) {
+                    var oldAnswer = possibleOldAnswer.get();
+                    var newText = a.text();
+                    if (newText != null) oldAnswer.setText(newText);
+                    if (a.isCorrect() != null) oldAnswer.setCorrect(a.isCorrect());
+                } else
+                    throw new ExerciseSyntaxException("Answer with id not linked to exercise present, id's should never be changed!");
+            }
+        });
+        checkForValidExercise(OcaExerciseDto.from(updatingExercise));
+
+        //answerRepository.saveAll(originalAnswers);//with CascadeType.ALL is this necessary?
+        ocaExerciseRepository.save(updatingExercise);
+        return updatingExercise;
     }
 
     public OcaExercise replace(OcaExercise oldExercise, OcaExercise newExercise) {
@@ -60,6 +91,15 @@ public class OcaExerciseService {
         ocaExerciseRepository.deleteById(id);
     }
 
+    public OcaExerciseDto deleteAnswerFromExercise(long answerId, OcaExercise exercise) {
+        var answersFromExercise = exercise.getPossibleAnswers();
+        var possibleAnswer = answersFromExercise.stream().filter(a -> a.getId() == answerId).findFirst();
+        if (possibleAnswer.isEmpty())
+            throw new ExerciseSyntaxException("answer with id:" + answerId + " is not linked to exercise");
+        answerRepository.deleteById(answerId);
+        answersFromExercise.remove(possibleAnswer.get());
+        return OcaExerciseDto.from(exercise);
+    }
 
     public List<OcaExercise> findAll() {
         return ocaExerciseRepository.findAll();

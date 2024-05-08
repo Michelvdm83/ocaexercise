@@ -18,9 +18,9 @@ public class Seeder implements CommandLineRunner {
     public void run(String... args) {
         if (ocaExerciseService.findAll().isEmpty()) {
             String question = "Which of the following types is not a primitive?";
-            var answer1 = new AnswerDto("String", true);
-            var answer2 = new AnswerDto("int", false);
-            var answer3 = new AnswerDto("double", false);
+            var answer1 = new AnswerDto("String", true, null);
+            var answer2 = new AnswerDto("int", false, null);
+            var answer3 = new AnswerDto("double", false, null);
 
             ocaExerciseService.saveNew(new OcaExerciseDto(question, List.of(answer1, answer2, answer3)));
         }

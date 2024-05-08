@@ -2,6 +2,7 @@ package com.mvdmstudy.oca.exercise;
 
 import com.mvdmstudy.oca.ExerciseSyntaxException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -15,6 +16,7 @@ import java.util.Random;
 @RequestMapping("/oca/exercises")
 public class OcaExerciseController {
     private final OcaExerciseService ocaExerciseService;
+    //Logger logger = LogManager.getLogger(OcaExerciseController.class);
 
     @GetMapping("/{id}")
     public ResponseEntity<OcaExerciseDto> getById(@PathVariable long id) {
@@ -40,17 +42,16 @@ public class OcaExerciseController {
     }
 
     @PatchMapping("{id}")
-    public ResponseEntity<?> update(@RequestBody OcaExerciseDto ocaExerciseDto, @PathVariable long id) {
+    public ResponseEntity<OcaExerciseDto> update(@RequestBody OcaExercisePatchDto ocaExercisePatchDto, @PathVariable long id) {
+        if (ocaExercisePatchDto.id() != null && ocaExercisePatchDto.id() != id)
+            throw new ExerciseSyntaxException("id should not be changed!");
         var possibleExercise = ocaExerciseService.findById(id);
         if (possibleExercise.isEmpty()) return ResponseEntity.notFound().build();
 
-        var updatedExercise = possibleExercise.get();
+        var originalExercise = possibleExercise.get();
 
-        var newQuestion = ocaExerciseDto.question();
-        if (newQuestion != null) updatedExercise.setQuestion(newQuestion);
-
-        ocaExerciseService.update(updatedExercise);
-        return ResponseEntity.ok(ocaExerciseDto);
+        var updatedExercise = ocaExerciseService.update(originalExercise, ocaExercisePatchDto);
+        return ResponseEntity.ok(OcaExerciseDto.from(updatedExercise));
     }
 
     @PutMapping
@@ -72,5 +73,14 @@ public class OcaExerciseController {
             ocaExerciseService.delete(id);
             return ResponseEntity.noContent().build();
         }
+    }
+
+    @DeleteMapping("{id}/{answerId}")
+    public ResponseEntity<?> deleteAnswerFromExercise(@PathVariable long id, @PathVariable long answerId) {
+        var possibleExercise = ocaExerciseService.findById(id);
+        if (possibleExercise.isEmpty())
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No exercise with id:" + id + " found");
+        var updatedExercise = ocaExerciseService.deleteAnswerFromExercise(answerId, possibleExercise.get());
+        return ResponseEntity.ok(updatedExercise);
     }
 }
